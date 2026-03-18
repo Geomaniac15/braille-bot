@@ -1,3 +1,19 @@
+'''
+helpful notes:
+
+families:
+    a, k, u
+    b, l, v
+    c, m, x
+
+g: f pattern + dot 5 -> g 
+
+braille square:
+    1 4
+    2 5
+    3 6
+'''
+
 import random
 
 braille_visual = {
