@@ -14,6 +14,7 @@ braille square:
     3 6
 '''
 
+import tkinter as tk
 import random
 
 braille_visual = {
@@ -30,46 +31,64 @@ braille_visual = {
 }
 
 letters = list(braille_visual.keys())
-
-# track mistakes per letter
 wrong_counts = {letter: 0 for letter in letters}
 
+current_letter = None
 streak = 0
 total = 0
 correct = 0
 
-while True:
-    # weighted selection (focus on mistakes)
+
+def next_question():
+    global current_letter
+
     weights = [1 + wrong_counts[l] for l in letters]
-    letter = random.choices(letters, weights=weights)[0]
+    current_letter = random.choices(letters, weights=weights)[0]
 
-    print(f'\nBraille: |{braille_visual[letter]}|')
+    braille_label.config(text=braille_visual[current_letter])
+    entry.delete(0, tk.END)
+    feedback_label.config(text='')
 
-    user_choice = input('Your answer (or "quit"): ').lower().strip()
 
-    if user_choice == 'quit':
-        break
+def check_answer():
+    global streak, total, correct
 
+    user = entry.get().strip().lower()
     total += 1
 
-    if user_choice == letter:
+    if user == current_letter:
         correct += 1
         streak += 1
-        print('Correct')
+        feedback_label.config(text='Correct', fg='green')
     else:
-        wrong_counts[letter] += 1
+        wrong_counts[current_letter] += 1
         streak = 0
-        print(f'Wrong. It was {letter}')
+        feedback_label.config(text=f'Wrong (was {current_letter})', fg='red')
 
     accuracy = (correct / total) * 100
+    stats_label.config(text=f'Streak: {streak} | Accuracy: {accuracy:.1f}%')
 
-    print(f'Streak: {streak}')
-    print(f'Accuracy: {accuracy:.1f}%')
+    root.after(800, next_question)
 
-    # Optional: show problem letters occasionally
-    if total % 10 == 0:
-        print('\nMistake breakdown:')
-        for l, count in sorted(wrong_counts.items(), key=lambda x: -x[1]):
-            if count > 0:
-                print(f'{l}: {count}')
-        print('-' * 20)
+
+# GUI setup
+root = tk.Tk()
+root.title('Braille Trainer')
+
+# BIG font for Braille
+braille_label = tk.Label(root, text='', font=('Segoe UI Symbol', 100))
+braille_label.pack(pady=20)
+
+entry = tk.Entry(root, font=('Arial', 20))
+entry.pack()
+entry.bind('<Return>', lambda event: check_answer())
+
+feedback_label = tk.Label(root, text='', font=('Arial', 16))
+feedback_label.pack(pady=10)
+
+stats_label = tk.Label(root, text='Streak: 0 | Accuracy: 0%', font=('Arial', 12))
+stats_label.pack(pady=5)
+
+next_question()
+
+root.mainloop()
