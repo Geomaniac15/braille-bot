@@ -68,12 +68,19 @@ def check_answer():
     accuracy = (correct / total) * 100
     stats_label.config(text=f'Streak: {streak} | Accuracy: {accuracy:.1f}%')
 
+    if (total % 10) == 0:
+        sorted_mistakes = sorted(wrong_counts.items(), key=lambda x: -x[1])
+
+        for letter, count in sorted_mistakes:
+            if count > 0:
+                print(f'{letter}: {count}')
+
     root.after(800, next_question)
 
 
 # GUI setup
 root = tk.Tk()
-root.title('Braille Trainer')
+root.title('Braille-Bot')
 
 # BIG font for Braille
 braille_label = tk.Label(root, text='', font=('Segoe UI Symbol', 100))
